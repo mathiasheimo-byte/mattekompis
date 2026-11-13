@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#174d67">
+<meta name="description" content="Tvåspråkig matteträning på svenska och laotiska.">
+<link rel="manifest" href="manifest.json">
+<title>Mattekompis</title>
+<style>
+:root{--blue:#174d67;--blue2:#28627c;--mint:#dff5ed;--ink:#18313b;--muted:#5d727a;--paper:#f4f8f9;--white:#fff;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--blue);color:white;padding:20px 18px 22px;border-radius:0 0 24px 24px}
+.wrap{max-width:620px;margin:auto;padding:0 14px 28px}
+h1{font-size:1.45rem;margin:0}header p{margin:5px 0 0;color:#d9edf4}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.stat{background:var(--blue2);padding:10px;border-radius:14px}.stat b{display:block;font-size:1.35rem}.stat span{font-size:.76rem;color:#e1f0f5}
+main{padding-top:14px}.card{background:white;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #173b6510}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h2{font-size:1.12rem;margin:0 0 8px}h3{font-size:1rem;margin:0 0 6px}
+small,.muted{color:var(--muted)}button,select,input{font:inherit}
+button{border:0;border-radius:13px;padding:12px 15px;background:var(--blue);color:white;font-weight:650;cursor:pointer}
+button.secondary{background:#e8f0f2;color:var(--blue)}button:disabled{opacity:.45;cursor:not-allowed}
+select,input{width:100%;border:1px solid #cbd9de;border-radius:12px;padding:12px;background:white;color:var(--ink)}
+label{display:block;font-weight:650;margin:12px 0 6px}.big{font-size:2rem;font-weight:800;text-align:center;margin:12px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
+.feedback{padding:12px;border-radius:12px;background:var(--mint);margin-top:12px}
+.progress{height:10px;background:#e5edef;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:#269a80;width:0}
+.pill{display:inline-block;padding:5px 9px;background:#edf5f7;border-radius:99px;font-size:.78rem;color:var(--blue)}
+.lesson{padding:12px;border:1px solid #e0e9ec;border-radius:13px;margin:8px 0}
+.lesson.done{border-color:#91d3bb;background:#f2fbf7}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <div class="row"><div><h1>🧠 Mattekompis</h1><p>ມາຮຽນຄະນິດສາດນຳກັນ · Vi lär oss tillsammans</p></div><span class="pill">Nivå 1</span></div>
+ <div class="stats">
+  <div class="stat"><b id="points">0 ⭐</b><span>Poäng · ຄະແນນ</span></div>
+  <div class="stat"><b id="days">0</b><span>Träningsdagar · ມື້</span></div>
+  <div class="stat"><b id="completed">0</b><span>Klara frågor · ສຳເລັດ</span></div>
+ </div>
+</div></header>
+<main class="wrap">
+ <section class="card">
+  <div class="row"><h2>Välkommen tillbaka! 👋</h2><span class="pill" id="saveStatus">Sparas på mobilen</span></div>
+  <p class="muted" id="welcome">Dina framsteg sparas automatiskt på den här telefonen.</p>
+  <label for="language">Språk · ພາສາ</label>
+  <select id="language"><option value="both">Svenska + ລາວ</option><option value="sv">Svenska</option><option value="lo">ລາວ</option></select>
+ </section>
+ <section class="card">
+  <h2>Dagens träning · ບົດຝຶກມື້ນີ້</h2>
+  <div class="row"><span class="pill" id="lessonName">Lektion 1 · Plus</span><span class="muted" id="qCount">Fråga 1 av 5</span></div>
+  <div class="progress" style="margin:12px 0"><div id="bar"></div></div>
+  <p id="prompt">Räkna ut talet · ຈົ່ງຄິດໄລ່</p>
+  <div class="big" id="sum">4 + 3 = ?</div>
+  <label for="answer">Ditt svar · ຄຳຕອບຂອງເຈົ້າ</label>
+  <input id="answer" type="number" inputmode="numeric" placeholder="Skriv svaret här · ພິມຄຳຕອບ">
+  <div class="actions" style="margin-top:12px"><button id="check">Kontrollera · ກວດຄຳຕອບ</button><button class="secondary" id="hint">Visa hjälp · ຊ່ວຍແນ່</button></div>
+  <div id="feedback" class="feedback" hidden aria-live="polite"></div>
+  <div class="actions" style="margin-top:10px"><button id="next" disabled>Nästa fråga →</button></div>
+ </section>
+ <section class="card">
+  <h2>Dina lektioner · ບົດຮຽນຂອງເຈົ້າ</h2>
+  <div id="lessons"></div>
+ </section>
+ <section class="card">
+  <h2>Din utveckling · ຄວາມກ້າວໜ້າ</h2>
+  <p id="summary" class="muted">Börja träna så visas dina framsteg här.</p>
+  <div class="actions"><button class="secondary" id="reset">Nollställ framsteg</button></div>
+  <small>Framsteg sparas lokalt i webbläsaren på den här mobilen. Om webbläsardata rensas eller du byter telefon kan de försvinna.</small>
+ </section>
+ <footer>ຮຽນຕາມຈັງຫວະຂອງເຈົ້າເອງ · Lär dig i din egen takt ❤️</footer>
+</main>
+<script>
+const lessons=[
+ {name:"Plus · ບວກ",op:"+",items:[[4,3],[8,5],[12,6],[15,7],[23,9]],ex:"Plus betyder att lägga ihop. ການບວກແມ່ນການເອົາຈຳນວນມາລວມກັນ."},
+ {name:"Minus · ລົບ",op:"−",items:[[9,5],[14,6],[20,8],[17,9],[30,12]],ex:"Minus betyder att ta bort. ການລົບແມ່ນການເອົາອອກ."},
+ {name:"Gånger · ຄູນ",op:"×",items:[[2,3],[3,4],[5,2],[4,6],[7,3]],ex:"Gånger är flera lika stora grupper. ການຄູນແມ່ນການບວກຈຳນວນເທົ່າກັນຫຼາຍໆຄັ້ງ."},
+ {name:"Delat · ຫານ",op:"÷",items:[[12,3],[20,5],[18,2],[24,6],[30,5]],ex:"Division betyder att dela lika. ການຫານແມ່ນການແບ່ງໃຫ້ເທົ່າກັນ."}
+];
+const fresh=()=>({points:0,done:0,days:[],lesson:0,index:0,passed:[],lastDate:""});
+let state;try{state=JSON.parse(localStorage.getItem("mattekompis-progress"))||fresh()}catch(e){state=fresh()}
+let answered=false;let lastCorrect=false;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("mattekompis-progress",JSON.stringify(state));renderStats()}
+function today(){return new Date().toISOString().slice(0,10)}
+function current(){return lessons[state.lesson%lessons.length].items[state.index%5]}
+function renderStats(){
+ $("points").textContent=state.points+" ⭐";$("days").textContent=state.days.length;$("completed").textContent=state.done;
+ $("summary").textContent=`Du har svarat på ${state.done} frågor och samlat ${state.points} poäng. Du har tränat ${state.days.length} dagar.`;
+ $("lessons").innerHTML=lessons.map((l,i)=>`<div class="lesson ${state.passed.includes(i)?"done":""}"><div class="row"><b>${l.name}</b><span>${state.passed.includes(i)?"✓ Klar":"Pågår / Inte klar"}</span></div><small>${l.ex}</small></div>`).join("");
+}
+function renderQuestion(){
+ const l=lessons[state.lesson%lessons.length],[a,b]=current();
+ $("lessonName").textContent=l.name;$("qCount").textContent=`Fråga ${state.index+1} av 5`;
+ $("bar").style.width=(state.index/5*100)+"%";$("sum").textContent=`${a} ${l.op} ${b} = ?`;
+ $("feedback").hidden=true;$("answer").value="";$("answer").disabled=false;$("check").disabled=false;$("next").disabled=true;answered=false;
+}
+function resultText(correct,expected,l){
+ const lang=$("language").value;
+ if(correct)return lang==="lo"?"ຖືກຕ້ອງ! ເກັ່ງຫຼາຍ! +10 ຄະແນນ":"Rätt svar! Snyggt jobbat! +10 poäng 🎉";
+ return lang==="lo"?`ຍັງບໍ່ຖືກ. ຄຳຕອບແມ່ນ ${expected}. ລອງອີກຄັ້ງໄດ້!`:`Inte riktigt. Rätt svar är ${expected}. ${l.ex}`;
+}
+$("check").onclick=()=>{
+ if(answered||$("answer").value.trim()==="")return;
+ const l=lessons[state.lesson%lessons.length],[a,b]=current(),expected=l.op==="+"?a+b:l.op==="−"?a-b:l.op==="×"?a*b:a/b;
+ const ok=Number($("answer").value)===expected;answered=true;lastCorrect=ok;state.done++;
+ if(ok){state.points+=10;const d=today();if(!state.days.includes(d))state.days.push(d);}
+ $("feedback").textContent=resultText(ok,expected,l);$("feedback").hidden=false;
+ $("answer").disabled=ok;$("check").disabled=ok;$("next").disabled=false;$("next").textContent=ok?"Nästa fråga →":"Försök igen · ລອງອີກ";
+ if(state.index===4&&ok&&!state.passed.includes(state.lesson))state.passed.push(state.lesson);
+ save();
+};
+$("hint").onclick=()=>{const l=lessons[state.lesson%lessons.length];$("feedback").textContent=l.ex;$("feedback").hidden=false};
+$("next").onclick=()=>{
+ if(!lastCorrect){$("answer").disabled=false;$("check").disabled=false;$("next").disabled=true;$("next").textContent="Nästa fråga →";$("answer").value="";$("feedback").hidden=true;answered=false;return;}
+ if(state.index<4)state.index++;
+ else {state.lesson=(state.lesson+1)%lessons.length;state.index=0;}
+ $("next").textContent="Nästa fråga →";save();renderQuestion();
+};
+$("language").onchange=()=>{localStorage.setItem("mattekompis-language",$("language").value)};
+$("reset").onclick=()=>{if(confirm("Vill du verkligen nollställa alla sparade framsteg?")){state=fresh();save();renderQuestion();}};
+try{$("language").value=localStorage.getItem("mattekompis-language")||"both"}catch(e){}
+renderStats();renderQuestion();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script>
+</body></html>

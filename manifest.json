@@ -1,0 +1,10 @@
+{
+  "name": "Mattekompis",
+  "short_name": "Mattekompis",
+  "description": "Lär dig matematik på svenska och laotiska.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f8f9",
+  "theme_color": "#174d67",
+  "icons": []
+}
